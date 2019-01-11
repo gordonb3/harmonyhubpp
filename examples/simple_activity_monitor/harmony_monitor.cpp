@@ -228,7 +228,6 @@ int main(int argc, char * argv[])
 	m_thread = std::make_shared<std::thread>(&keep_alive);
 	sleep(1);
 	Client.set_message_handler(boost::bind(&parse_message, boost::placeholders::_1));
-Client.set_hubid("12404700");
 
 	if (argc > 1)
 	{

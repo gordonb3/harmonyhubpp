@@ -9,10 +9,11 @@ to screen.
 Run the executable `harmony_monitor`
 
 Command List:
-    connect <IP address>
-    close [<close code:default=1000>] [<close reason>]
-    help: Display this help text
-    quit: Exit the program
+
+- connect &lt;IP address&gt;
+- close [&lt;close code:default=1000&gt;] [&lt;close reason&gt;]
+- help: Display this help text
+- quit: Exit the program
 
 Optionally you may pass the Hub's IP address directly on the command line for instant connect.
 

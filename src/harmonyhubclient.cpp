@@ -43,7 +43,7 @@ namespace harmonyhubpp {
 #ifndef without_discovery
 /************************************************************************
  *									*
- * harmonyhubclient::discovery						*
+ * harmonyhubpp::HarmonyDiscovery						*
  *									*
  * This subclass performs a HTTP call to the HarmonyHub to retrieve	*
  * parameters needed for our websockets connection			*
@@ -59,7 +59,7 @@ namespace harmonyhubpp {
  * future calls to this library						*
  *									*
  ***********************************************************************/
-class discovery
+class HarmonyDiscovery
 {
 private:
 	// Curl write back function
@@ -81,7 +81,7 @@ private:
 	}
 
 public:
-	discovery(const std::string IPAddress)
+	HarmonyDiscovery(const std::string IPAddress)
 	{
 		std::string uri = "http://";
 		uri.append(IPAddress);
@@ -137,7 +137,7 @@ public:
 
 	}
 
-	~discovery()
+	~HarmonyDiscovery()
 	{
 	}
 
@@ -195,17 +195,17 @@ private:
 
 /****************************************************************
  *								*
- * harmonyhubclient::connection					*
+ * harmonyhubpp::HarmonyConnection					*
  *								*
  * This subclass provides the link with websocketpp		*
  *								*
  ****************************************************************/
-class connection
+class HarmonyConnection
 {
 	typedef websocketpp::client<websocketpp::config::asio_client> _wsclient;
 
 public:
-	connection ()
+	HarmonyConnection ()
 	{
 		// disable logging
 		m_endpoint.clear_access_channels(websocketpp::log::alevel::all);
@@ -220,7 +220,7 @@ public:
 		m_status = harmonyhubpp::session::status::connecting;
 	}
 
-	~connection() {
+	~HarmonyConnection() {
 		m_endpoint.stop_perpetual();
 
 		if (m_status == harmonyhubpp::session::status::open)
@@ -245,7 +245,7 @@ public:
 #ifdef without_discovery
 			return std::make_error_code(std::errc::invalid_argument);
 #else
-			harmonyhubpp::discovery *HubInfo = new harmonyhubpp::discovery(ip_address);
+			harmonyhubpp::HarmonyDiscovery *HubInfo = new harmonyhubpp::HarmonyDiscovery(ip_address);
 			if (!HubInfo->is_msgOK())
 			{
 				std::string message = HubInfo->get_raw_message();
@@ -298,10 +298,10 @@ public:
 
 		m_hdl = con->get_handle();
 
-		con->set_open_handler(websocketpp::lib::bind(&connection::on_open, this));
-		con->set_fail_handler(websocketpp::lib::bind(&connection::on_fail, this));
-		con->set_close_handler(websocketpp::lib::bind(&connection::on_close, this));
-		con->set_message_handler(websocketpp::lib::bind(&connection::on_message, this, websocketpp::lib::placeholders::_2));
+		con->set_open_handler(websocketpp::lib::bind(&HarmonyConnection::on_open, this));
+		con->set_fail_handler(websocketpp::lib::bind(&HarmonyConnection::on_fail, this));
+		con->set_close_handler(websocketpp::lib::bind(&HarmonyConnection::on_close, this));
+		con->set_message_handler(websocketpp::lib::bind(&HarmonyConnection::on_message, this, websocketpp::lib::placeholders::_2));
 
 		m_endpoint.connect(con);
 		return ec;
@@ -419,7 +419,6 @@ private:
 
 
 }; // class connection
-}; // namespace harmonyhubpp
 
 
 
@@ -428,51 +427,51 @@ private:
  * Main class entry point					*
  *								*
  ****************************************************************/
-harmonyhubclient::harmonyhubclient()
+HarmonyClient::HarmonyClient()
 {
-	m_conn = new harmonyhubpp::connection();
+	m_conn = new harmonyhubpp::HarmonyConnection();
 	m_domain = DEFAULTDOMAIN;
 	m_msgid = 0;
 }
 
-harmonyhubclient::~harmonyhubclient()
+HarmonyClient::~HarmonyClient()
 {
 	delete m_conn;
 }
 
-void harmonyhubclient::set_hubid(const std::string remoteID, const std::string domain)
+void HarmonyClient::set_hubid(const std::string remoteID, const std::string domain)
 {
 	m_remoteID = remoteID;
 	if (!domain.empty())
 		m_domain = domain;
 }
 
-std::string harmonyhubclient::get_hubid()
+std::string HarmonyClient::get_hubid()
 {
 	return m_remoteID;
 }
 
-std::string harmonyhubclient::get_domain()
+std::string HarmonyClient::get_domain()
 {
 	return m_domain;
 }
 
-std::error_code harmonyhubclient::connect(const std::string IPAddress)
+std::error_code HarmonyClient::connect(const std::string IPAddress)
 {
 	return m_conn->connect(IPAddress, m_remoteID, m_domain);
 }
 
-std::error_code harmonyhubclient::close(const std::string reason)
+std::error_code HarmonyClient::close(const std::string reason)
 {
 	return m_conn->close(reason);
 }
 
-void harmonyhubclient::set_message_handler(harmonyhubpp::message_handler h)
+void HarmonyClient::set_message_handler(harmonyhubpp::message_handler h)
 {
 	m_conn->set_message_handler(h);
 }
 
-std::error_code harmonyhubclient::send_request(const std::string cmd, const std::string params)
+std::error_code HarmonyClient::send_request(const std::string cmd, const std::string params)
 {
 	m_msgid++;
 	std::string message = "{\"hubId\":\"";
@@ -492,27 +491,27 @@ std::error_code harmonyhubclient::send_request(const std::string cmd, const std:
 }
 
 
-std::error_code harmonyhubclient::get_statedigest()
+std::error_code HarmonyClient::get_statedigest()
 {
 	return send_request("connect.get_statedigest");
 }
 
-std::error_code harmonyhubclient::ping()
+std::error_code HarmonyClient::ping()
 {
 	return send_request("connect.ping");
 }
 
-std::error_code harmonyhubclient::get_current_activity()
+std::error_code HarmonyClient::get_current_activity()
 {
 	return send_request("harmony.engine?getCurrentActivity");
 }
 
-std::error_code harmonyhubclient::get_config()
+std::error_code HarmonyClient::get_config()
 {
 	return send_request("harmony.engine?config");
 }
 
-std::error_code harmonyhubclient::get_activitylist()
+std::error_code HarmonyClient::get_activitylist()
 {
 	std::string params = "{\"uri\":\"harmony://Account/";
 	params.append(m_remoteID);
@@ -520,7 +519,7 @@ std::error_code harmonyhubclient::get_activitylist()
 	return send_request("proxy.resource?get", params);
 }
 
-std::error_code harmonyhubclient::get_devicelist()
+std::error_code HarmonyClient::get_devicelist()
 {
 	std::string params = "{\"uri\":\"harmony://Account/";
 	params.append(m_remoteID);
@@ -528,7 +527,7 @@ std::error_code harmonyhubclient::get_devicelist()
 	return send_request("proxy.resource?get", params);
 }
 
-std::error_code harmonyhubclient::get_capabilitylist()
+std::error_code HarmonyClient::get_capabilitylist()
 {
 	std::string params = "{\"uri\":\"harmony://Account/";
 	params.append(m_remoteID);
@@ -536,17 +535,17 @@ std::error_code harmonyhubclient::get_capabilitylist()
 	return send_request("proxy.resource?get", params);
 }
 
-std::error_code harmonyhubclient::get_homeautomation_config()
+std::error_code HarmonyClient::get_homeautomation_config()
 {
 	return send_request("proxy.resource?get","{\"uri\":\"dynamite://HomeAutomationService/Config/\"}");
 }
 
-std::error_code harmonyhubclient::get_userinfo()
+std::error_code HarmonyClient::get_userinfo()
 {
 	return send_request("setup.account?getProvisionInfo");
 }
 
-std::error_code harmonyhubclient::start_activity(std::string activity_id)
+std::error_code HarmonyClient::start_activity(std::string activity_id)
 {
 	std::string params = "{\"activityId\":\"";
 	params.append(activity_id);
@@ -554,7 +553,7 @@ std::error_code harmonyhubclient::start_activity(std::string activity_id)
 	return send_request("harmony.activityengine?runactivity", params);
 }
 
-std::error_code harmonyhubclient::send_action(const std::string action, const int delay_ms)
+std::error_code HarmonyClient::send_action(const std::string action, const int delay_ms)
 {
 	std::string params = "{\"status\":\"press\",\"timestamp\":0,\"verb\":\"render\",\"action\":\"";
 	params.append(action);
@@ -571,7 +570,7 @@ std::error_code harmonyhubclient::send_action(const std::string action, const in
 	return send_request("harmony.engine?holdAction", params);
 }
 
-std::error_code harmonyhubclient::send_device_command(const std::string device_id, const std::string cmd, const int delay_ms)
+std::error_code HarmonyClient::send_device_command(const std::string device_id, const std::string cmd, const int delay_ms)
 {
 	std::string action = "{\\\"command\\\":\\\"";
 	action.append(cmd);
@@ -582,7 +581,7 @@ std::error_code harmonyhubclient::send_device_command(const std::string device_i
 	return send_action(action, delay_ms);
 }
 
-std::error_code harmonyhubclient::change_channel(int channel)
+std::error_code HarmonyClient::change_channel(int channel)
 {
 	std::string params = "{\"timestamp\":0,\"channel\":\"";
 	params.append(std::to_string(channel));
@@ -591,8 +590,10 @@ std::error_code harmonyhubclient::change_channel(int channel)
 }
 
 
-std::error_code harmonyhubclient::send_raw_message(const std::string message)
+std::error_code HarmonyClient::send_raw_message(const std::string message)
 {
 	return m_conn->send(message);
 }
+
+}; // namespace harmonyhubpp
 

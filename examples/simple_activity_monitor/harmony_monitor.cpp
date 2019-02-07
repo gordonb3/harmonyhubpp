@@ -39,7 +39,7 @@ namespace status {
 }; // namespace status
 }; // namespace activity
 
-namespace client {
+namespace connection {
 namespace status {
 	enum value {
 		connecting,
@@ -53,8 +53,8 @@ namespace status {
 
 
 bool stoprequested;
-harmonyhubclient Client;
-harmonyhubpp::client::status::value myState;
+harmonyhubpp::HarmonyClient Client;
+harmonyhubpp::connection::status::value myState;
 bool checktimeout;
 
 std::string datetime()
@@ -127,24 +127,24 @@ void parse_message(const std::string szdata)
 
 	int returncode = atoi(j_result["code"].asString().c_str());
 
-	if (myState == harmonyhubpp::client::status::connecting)
+	if (myState == harmonyhubpp::connection::status::connecting)
 	{
 		if (returncode == 10000)
 		{
-			myState = harmonyhubpp::client::status::connected;
+			myState = harmonyhubpp::connection::status::connected;
 			std::cout << datetime() << " connected to hub\n";
 			return;
 		}
 		else if (returncode > 10000)
 		{
-			myState = harmonyhubpp::client::status::closed;
+			myState = harmonyhubpp::connection::status::closed;
 			std::cout << datetime() << " connect failed with error " << returncode - 10000 <<  ": " << j_result["msg"].asString() << "\n";
 			return;
 		}
 	}
-	if ((myState == harmonyhubpp::client::status::closing) && (returncode == 1000))
+	if ((myState == harmonyhubpp::connection::status::closing) && (returncode == 1000))
 	{
-		myState = harmonyhubpp::client::status::closed;
+		myState = harmonyhubpp::connection::status::closed;
 		std::cout << datetime() << " connection closed\n";
 		return;
 	}
@@ -159,7 +159,7 @@ void parse_message(const std::string szdata)
 	if (returncode >= 1000)
 	{
 		// websocket connection ended
-		myState = harmonyhubpp::client::status::closed;
+		myState = harmonyhubpp::connection::status::closed;
 		std::cout << datetime() << " connection closed unexpectedly (error = " << returncode <<  ")\n";
 		return;
 	}
@@ -202,7 +202,7 @@ void keep_alive()
 		{
 			sleep(1);
 		}
-		if (myState == harmonyhubpp::client::status::connected)
+		if (myState == harmonyhubpp::connection::status::connected)
 		{
 			timer++;
 			if (timer == 40)
@@ -220,7 +220,7 @@ int main(int argc, char * argv[])
 {
 	bool done = false;
 	std::string input;
-	myState = harmonyhubpp::client::status::closed;
+	myState = harmonyhubpp::connection::status::closed;
 
 	stoprequested = false;
 	checktimeout = false;
@@ -231,7 +231,7 @@ int main(int argc, char * argv[])
 
 	if (argc > 1)
 	{
-		myState = harmonyhubpp::client::status::connecting;
+		myState = harmonyhubpp::connection::status::connecting;
 		Client.connect(argv[1]);
 		sleep(1);
 	}
@@ -260,16 +260,16 @@ int main(int argc, char * argv[])
 				<< "quit: Exit the program\n"
 				<< std::endl;
 		} else if (input.substr(0,7) == "connect") {
-			if (myState == harmonyhubpp::client::status::connected)
+			if (myState == harmonyhubpp::connection::status::connected)
 				std::cout << "> Already connected" << std::endl;
 			else
 			{
-				myState = harmonyhubpp::client::status::connecting;
+				myState = harmonyhubpp::connection::status::connecting;
 				checktimeout = true;
 				Client.connect(input.substr(8));
 			}
 		} else if (input.substr(0,5) == "close") {
-			if (myState == harmonyhubpp::client::status::closed)
+			if (myState == harmonyhubpp::connection::status::closed)
 				std::cout << "> Already closed" << std::endl;
 			else
 			{
@@ -282,7 +282,7 @@ int main(int argc, char * argv[])
 				ss >> cmd >> id;
 				std::getline(ss,reason);
 
-				myState = harmonyhubpp::client::status::closing;
+				myState = harmonyhubpp::connection::status::closing;
 				checktimeout = true;
 				Client.close(reason);
 			}

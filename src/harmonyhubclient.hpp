@@ -62,20 +62,19 @@ struct hubresource
 	/* inline subclass that does a HTTP call to the HarmonyHub to retrieve
 	 * the Hub ID and domain name
 	 */
-	class discovery;
+	class HarmonyDiscovery;
 #endif
 
 	/* inline subclass that isolates the websocket functions to allow easier
 	 * integration into larger projects
 	 */
-	class connection;
-
-
-}; // namespace harmonyhubpp
+	class HarmonyConnection;
 
 
 
-class harmonyhubclient
+
+
+class HarmonyClient
 {
 private:
 	std::error_code send_request(const std::string cmd, const std::string params="");
@@ -86,8 +85,8 @@ private:
 	void parse_message(const std::string szdata);
 
 public:
-	harmonyhubclient();
-	~harmonyhubclient();
+	HarmonyClient();
+	~HarmonyClient();
 
 	void set_hubid(const std::string remoteID, const std::string domain="");
 	std::string get_hubid();
@@ -175,11 +174,15 @@ public:
 
 
 private:
-	harmonyhubpp::connection *m_conn;
+	harmonyhubpp::HarmonyConnection *m_conn;
 
 	std::string m_remoteID;
 	std::string m_domain;
 	uint m_msgid;
 };
 
-#endif
+
+}; // namespace harmonyhubpp
+
+
+#endif // _HARMONYHUBPP

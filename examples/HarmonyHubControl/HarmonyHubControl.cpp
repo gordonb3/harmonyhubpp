@@ -369,7 +369,7 @@ int main(int argc, char * argv[])
 
 
 	// create harmonyhub client
-	harmonyhubclient hclient;
+	harmonyhubpp::HarmonyClient hclient;
 	hclient.set_message_handler(boost::bind(&handle_reply, boost::placeholders::_1));
 
  	// Read the connection parameters

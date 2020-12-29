@@ -16,7 +16,7 @@
 */
 
 #include <harmonyhubclient.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <thread>
 #include <cstdlib>
 #include <iostream>
@@ -48,7 +48,7 @@ namespace status {
 		closed
 	};
 }; // namespace status
-}; // namespace client
+}; // namespace connection
 }; // namespace harmonyhubpp
 
 

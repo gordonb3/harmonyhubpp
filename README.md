@@ -14,5 +14,7 @@ The following examples are included in the `examples` folder:
 
 ## Feedback Welcome!
 
-If you have any problems, questions or comments regarding this project, feel free to contact me! (gordon@bosvangennip.nl)
+If you have any problems, questions or comments regarding this project, feel free to contact me! (bugzilla@bosvangennip.nl)
+
+[![Buy me a beer!](https://raw.githubusercontent.com/gordonb3/cache/master/Algemeen/Buy%20me%20a%20beer!.png)](https://www.paypal.com/donate/?hosted_button_id=USJR8BWKEAEAL)
 

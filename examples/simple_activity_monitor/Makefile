@@ -1,6 +1,6 @@
 CC       = $(CROSS_COMPILE)g++
 CFLAGS  +=  -I../../lib -I../../src -c -Wall $(EXTRAFLAGS)
-LDFLAGS += -lstdc++ -lcurl -pthread -lboost_system
+LDFLAGS += -lstdc++ -lcurl -pthread
 HHC_OBJ  = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 DEPS     = $(patsubst %.cpp,%.o,$(wildcard ../../lib/jsoncpp/*.cpp)) $(patsubst %.cpp,%.o,$(wildcard ../../src/*.cpp))
 
